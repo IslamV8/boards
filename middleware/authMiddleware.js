@@ -1,15 +1,14 @@
-const jwt = require('jsonwebtoken');
-
 module.exports = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ error: 'Unauthorized' });
+  // نحاول نجيب userId من body أو query أو حتى header لو حبيت
+  const userId =
+    req.body.userId ||
+    req.query.userId ||
+    req.headers['x-user-id']; // ممكن تستخدم Header مخصص لو عايز
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid token' });
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized: userId is required' });
   }
+
+  req.userId = userId; // نخزّنه في req لاستخدامه في الكنترولرز
+  next();
 };

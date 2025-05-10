@@ -3,12 +3,14 @@ const {
   createBoard,
   getBoard,
   updateBoard,
-  deleteBoard
+  deleteBoard,
+  getUserBoards
 } = require('../controllers/boardController');
 
 const auth = require('../middleware/authMiddleware');
 const router = express.Router();
 
+router.get('/', auth, getUserBoards);
 router.post('/', auth, createBoard);
 router.get('/:id', auth, getBoard);
 router.put('/:id', auth, updateBoard);

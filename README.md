@@ -1,115 +1,127 @@
-# 📝 Task Management API
+# 🧠 Task Management API
 
-This is a simple **Task Management API** built with **Node.js**, **Express**, and **MongoDB**. It allows you to create task boards, add tasks, manage user authentication with JWT, and deploy easily to platforms like Vercel or Render.
-
----
-
-## 🚀 Features
-
-- User authentication (signup / login)
-- JWT-protected routes
-- CRUD operations for:
-  - Boards
-  - Tasks
-- Task filtering by status and search
-- Organized folder structure (MVC)
-- Compatible with serverless deployment
+هذا المشروع هو RESTful API كامل لإدارة المهام واللوحات باستخدام **Node.js**, **Express**, و **MongoDB**.  
+تم تبسيط نظام المصادقة بدون استخدام JWT، ويعتمد فقط على التحقق من `userId` المرسل مع الطلبات.
 
 ---
 
-## 📁 Folder Structure
+## ✅ المميزات
+
+- تسجيل مستخدم جديد + تسجيل دخول بباسورد مشفر.
+- CRUD كامل للـ Boards و Tasks.
+- دعم كامل للـ Validation باستخدام Joi.
+- دعم `custom status` للمهام.
+- فلترة + بحث + Pagination.
+- حماية الراوتات باستخدام Middleware بسيط مبني على userId فقط.
+- مشروع مناسب للتطبيقات التعليمية أو MVPs.
+
+---
+
+## 📦 Tech Stack
+
+- Node.js + Express
+- MongoDB + Mongoose
+- Joi (Validation)
+- bcryptjs (لتشفير الباسورد)
+- Vercel (لنشر المشروع)
+- Postman (للتجربة)
+
+---
+
+## 📁 هيكل المشروع
 
 ```
 .
-├── controllers       # Logic for auth, boards, tasks
-├── models            # Mongoose schemas
-├── routes            # Express routers
-├── middleware        # JWT auth middleware
-├── server.js         # App entry point
-└── package.json      # App config
+├── controllers
+│   ├── authController.js
+│   ├── boardController.js
+│   └── taskController.js
+├── models
+│   ├── User.js
+│   ├── Board.js
+│   └── Task.js
+├── routes
+│   ├── authRoutes.js
+│   ├── boardRoutes.js
+│   └── taskRoutes.js
+├── validations
+│   ├── authValidation.js
+│   ├── boardValidation.js
+│   └── taskValidation.js
+├── middleware
+│   └── authMiddleware.js
+└── server.js
 ```
 
 ---
 
-## 🛠️ Setup Instructions
+## 🧾 Endpoints
 
-### 1. Clone the repository
+### 🧍 Auth
 
-```
-git clone <your-repo-url>
-cd task-management-backend
-```
-
-### 2. Install dependencies
-
-```
-npm install
-```
-
-### 3. Create a `.env` file
-
-```
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=5000
-```
-
-### 4. Run the app locally
-
-```
-npm start
-```
-
-The server will run on `http://localhost:5000`
+| Endpoint | Method | Body | وصف |
+|---------|--------|------|------|
+| `/api/auth/signup` | POST | `{ username, password }` | إنشاء مستخدم جديد |
+| `/api/auth/login` | POST | `{ username, password }` | تسجيل دخول، يرجع `userId` |
 
 ---
 
-## 📡 API Endpoints
+### 📋 Boards
 
-### Authentication
-| Method | Endpoint       | Description       |
-|--------|----------------|-------------------|
-| POST   | /api/auth/signup | Register new user |
-| POST   | /api/auth/login  | Login & get token |
+كل الـ requests لازم تحتوي على `userId`.
 
-### Boards
-| Method | Endpoint            | Description              |
-|--------|---------------------|--------------------------|
-| POST   | /api/boards         | Create a board           |
-| GET    | /api/boards/:id     | Get a board              |
-| PUT    | /api/boards/:id     | Update board info        |
-| DELETE | /api/boards/:id     | Delete board and tasks   |
-
-### Tasks
-| Method | Endpoint        | Description              |
-|--------|-----------------|--------------------------|
-| GET    | /api/tasks      | Get all tasks (filterable) |
-| PUT    | /api/tasks/:id  | Update task              |
-| DELETE | /api/tasks/:id  | Delete task              |
+| Endpoint | Method | Body / Params | وصف |
+|----------|--------|----------------|------|
+| `/api/boards` | GET | `?page=1&limit=10&userId=...` | جلب كل اللوحات |
+| `/api/boards` | POST | `{ name, description, userId }` | إنشاء لوحة |
+| `/api/boards/:id` | GET | `?userId=...` | جلب لوحة واحدة |
+| `/api/boards/:id` | PUT | `{ name?, description?, userId }` | تعديل لوحة |
+| `/api/boards/:id` | DELETE | `?userId=...` | حذف لوحة |
 
 ---
 
-## 🧪 Test it with Postman
+### ✅ Tasks
 
-1. Signup or login to get a JWT token.
-2. Use that token in the `Authorization` header for all other routes:
-   ```
-   Authorization: Bearer <your-token>
-   ```
-
----
-
-## 🌐 Deploy
-
-You can deploy this project to:
-
-- [Vercel](https://vercel.com)
-- [Render](https://render.com)
-
-Make sure to set the environment variables in the deployment settings.
+| Endpoint | Method | Body / Params | وصف |
+|----------|--------|----------------|------|
+| `/api/tasks` | GET | `?search=...&status=...&page=1&limit=10&userId=...` | جلب المهام مع فلترة |
+| `/api/tasks` | POST | `{ title, status, boardId, userId }` | إنشاء مهمة |
+| `/api/tasks/:id` | PUT | `{ title?, status?, userId }` | تعديل مهمة |
+| `/api/tasks/:id` | DELETE | `?userId=...` | حذف مهمة |
 
 ---
 
-## 📄 License
+## 🛡️ الحماية
 
-MIT
+- كل الراوتات محمية بـ Middleware بيتأكد من وجود `userId`.
+- المستخدم لا يستطيع تعديل أو حذف بيانات غيره.
+
+---
+
+## 🧪 تجربة الـ API
+
+تقدر تستخدم **Postman** وتبعت `userId` مع كل طلب في:
+- Body
+- أو Query
+- أو Header (مثل: `x-user-id`)
+
+---
+
+## 🌐 النشر
+
+تم نشر التطبيق على Vercel. تأكد من إعداد:
+- ملف `vercel.json`
+- `MONGO_URI` في Vercel Environment Variables
+
+---
+
+## ✨ أفكار للتوسعة
+
+- رفع صور (Cloudinary أو Multer)
+- علاقات بين الـ Boards (Members)
+- إضافة Priorities و Tags للمهام
+- Dashboard و frontend بواجهة جميلة
+
+---
+
+🎉 بالتوفيق!
