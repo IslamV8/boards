@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const serverless = require('serverless-http');
 
 const authRoutes = require('./routes/authRoutes');
 const boardRoutes = require('./routes/boardRoutes');
@@ -15,20 +14,21 @@ app.use(cors());
 app.use(express.json());
 
 app.get(`/`, (req, res) => {
-  res.json("Hi Alpha")
+  res.json("Hi Alpha");
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/boards', boardRoutes);
 app.use('/api/tasks', taskRoutes);
 
-if (require.main === module) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => {
-      console.log('✅ MongoDB connected!');
-      const port = process.env.PORT || 5000;
-      app.listen(port, () => console.log(`Server running on port ${port}`));
-    })
-    .catch(err => console.error('❌ DB Error:', err));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected!'))
+  .catch(err => console.error('❌ DB Error:', err));
+
+// ✅ للتشغيل المحلي فقط
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => console.log(`Server running on port ${port}`));
 }
 
-module.exports = serverless(app);
+// ✅ لـ Vercel
+module.exports = app;
